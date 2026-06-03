@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Lock, Globe, Info } from "lucide-react";
 import { getDashboardTheme } from "./dashboard-theme";
@@ -9,6 +9,11 @@ interface NewRepositoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   isDark: boolean;
+  onCreate: (repo: {
+    name: string;
+    description: string;
+    isPrivate: boolean;
+  }) => void;
 }
 
 export default function NewRepositoryModal({
@@ -16,8 +21,10 @@ export default function NewRepositoryModal({
   onClose,
   isDark,
 }: NewRepositoryModalProps) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
   const t = getDashboardTheme(isDark);
-
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -37,10 +44,10 @@ export default function NewRepositoryModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px]"
+            className="fixed inset-0 z-60 bg-black/50 backdrop-blur-[2px]"
             onClick={onClose}
           />
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-70 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -58,10 +65,7 @@ export default function NewRepositoryModal({
                 className="flex items-center justify-between px-5 py-4 border-b"
                 style={{ borderColor: t.border }}
               >
-                <h2
-                  className="text-lg font-semibold"
-                  style={{ color: t.text }}
-                >
+                <h2 className="text-lg font-semibold" style={{ color: t.text }}>
                   Create a new repository
                 </h2>
                 <button
@@ -100,6 +104,8 @@ export default function NewRepositoryModal({
                   </label>
                   <input
                     type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="my-awesome-repo"
                     className="w-full px-3 py-2 text-sm rounded-md border outline-none transition-colors focus:ring-2"
                     style={{
@@ -116,12 +122,17 @@ export default function NewRepositoryModal({
                     style={{ color: t.text }}
                   >
                     Description{" "}
-                    <span className="font-normal" style={{ color: t.textMuted }}>
+                    <span
+                      className="font-normal"
+                      style={{ color: t.textMuted }}
+                    >
                       (optional)
                     </span>
                   </label>
                   <input
                     type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     placeholder="Short description of your repository"
                     className="w-full px-3 py-2 text-sm rounded-md border outline-none"
                     style={{
@@ -145,6 +156,8 @@ export default function NewRepositoryModal({
                   >
                     <input
                       type="radio"
+                      checked={!isPrivate}
+                      onChange={() => setIsPrivate(false)}
                       name="visibility"
                       defaultChecked
                       className="mt-1"
@@ -157,7 +170,10 @@ export default function NewRepositoryModal({
                         <Globe className="w-4 h-4" />
                         Public
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: t.textMuted }}>
+                      <p
+                        className="text-xs mt-0.5"
+                        style={{ color: t.textMuted }}
+                      >
                         Anyone can see this repository.
                       </p>
                     </div>
@@ -166,7 +182,13 @@ export default function NewRepositoryModal({
                     className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors"
                     style={{ borderColor: t.border }}
                   >
-                    <input type="radio" name="visibility" className="mt-1" />
+                    <input
+                      type="radio"
+                      checked={isPrivate}
+                      onChange={() => setIsPrivate(true)}
+                      name="visibility"
+                      className="mt-1"
+                    />
                     <div>
                       <div
                         className="flex items-center gap-2 text-sm font-medium"
@@ -175,7 +197,10 @@ export default function NewRepositoryModal({
                         <Lock className="w-4 h-4" />
                         Private
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: t.textMuted }}>
+                      <p
+                        className="text-xs mt-0.5"
+                        style={{ color: t.textMuted }}
+                      >
                         Only you can access this repository.
                       </p>
                     </div>
@@ -189,7 +214,10 @@ export default function NewRepositoryModal({
                     color: t.textSecondary,
                   }}
                 >
-                  <Info className="w-4 h-4 shrink-0 mt-0.5" style={{ color: t.accent }} />
+                  <Info
+                    className="w-4 h-4 shrink-0 mt-0.5"
+                    style={{ color: t.accent }}
+                  />
                   <span>
                     Initialize with README and default branch can be configured
                     after API integration.
@@ -214,6 +242,7 @@ export default function NewRepositoryModal({
                   Cancel
                 </button>
                 <button
+                  // onClick={handleCreate}
                   type="button"
                   className="px-4 py-2 text-sm font-semibold rounded-lg transition-all hover:shadow-lg"
                   style={{
