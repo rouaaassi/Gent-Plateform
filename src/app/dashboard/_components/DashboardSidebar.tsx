@@ -52,7 +52,10 @@ export default function DashboardSidebar({
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setProfileOpen(false);
       }
     };
@@ -117,7 +120,9 @@ export default function DashboardSidebar({
             {getInitials(user)}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate">{getDisplayName(user)}</p>
+            <p className="text-sm font-semibold truncate">
+              {getDisplayName(user)}
+            </p>
             <p className="text-xs truncate" style={{ color: t.textMuted }}>
               @{getUsername(user)}
             </p>
@@ -125,7 +130,7 @@ export default function DashboardSidebar({
           <ChevronDown
             className={cn(
               "w-4 h-4 shrink-0 transition-transform",
-              profileOpen && "rotate-180"
+              profileOpen && "rotate-180",
             )}
             style={{ color: t.textMuted }}
           />
@@ -158,10 +163,12 @@ export default function DashboardSidebar({
               color: active ? t.text : t.textSecondary,
             }}
             onMouseEnter={(e) => {
-              if (!active) e.currentTarget.style.backgroundColor = t.sidebarHover;
+              if (!active)
+                e.currentTarget.style.backgroundColor = t.sidebarHover;
             }}
             onMouseLeave={(e) => {
-              if (!active) e.currentTarget.style.backgroundColor = "transparent";
+              if (!active)
+                e.currentTarget.style.backgroundColor = "transparent";
             }}
           >
             <Icon className="w-4 h-4" />
@@ -171,10 +178,7 @@ export default function DashboardSidebar({
       </nav>
 
       <div className="px-4 py-2">
-        <div
-          className="h-px"
-          style={{ backgroundColor: t.border }}
-        />
+        <div className="h-px" style={{ backgroundColor: t.border }} />
       </div>
 
       {/* Repository list */}
@@ -210,7 +214,9 @@ export default function DashboardSidebar({
                   }}
                   className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm text-left transition-colors"
                   style={{
-                    backgroundColor: isSelected ? t.sidebarActive : "transparent",
+                    backgroundColor: isSelected
+                      ? t.sidebarActive
+                      : "transparent",
                     color: isSelected ? t.text : t.textSecondary,
                   }}
                   onMouseEnter={(e) => {

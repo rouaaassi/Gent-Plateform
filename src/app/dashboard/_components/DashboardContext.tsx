@@ -32,7 +32,8 @@ const DashboardCtx = createContext<DashboardContextValue | null>(null);
 
 export function useDashboard() {
   const ctx = useContext(DashboardCtx);
-  if (!ctx) throw new Error("useDashboard must be used within DashboardProvider");
+  if (!ctx)
+    throw new Error("useDashboard must be used within DashboardProvider");
   return ctx;
 }
 
@@ -85,8 +86,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
               typeof repo.owner === "string" && repo.owner
                 ? repo.owner
                 : typeof repo.owner_email === "string"
-                ? repo.owner_email.split("@")[0]
-                : "unknown",
+                  ? repo.owner_email.split("@")[0]
+                  : "unknown",
             description: String(repo.description ?? ""),
             isPrivate: Boolean(repo.is_private),
             stars: typeof repo.stars === "number" ? repo.stars : 0,
@@ -100,7 +101,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
                 })
               : "",
             defaultBranch: String(repo.default_branch ?? "main"),
-          }))
+          })),
         );
       } catch (error) {
         console.error("Failed to load repositories:", error);
@@ -139,8 +140,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           typeof data.owner === "string" && data.owner
             ? data.owner
             : typeof data.owner_email === "string"
-            ? data.owner_email.split("@")[0]
-            : "unknown",
+              ? data.owner_email.split("@")[0]
+              : "unknown",
         description: String(data.description ?? repo.description ?? ""),
         isPrivate: Boolean(data.is_private),
         stars: 0,
@@ -171,7 +172,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     return repositories.filter(
       (r) =>
         r.name.toLowerCase().includes(q) ||
-        r.description.toLowerCase().includes(q)
+        r.description.toLowerCase().includes(q),
     ).length;
   }, [searchQuery, repositories]);
 

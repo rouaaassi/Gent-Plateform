@@ -9,11 +9,17 @@ import { getDashboardTheme } from "./_components/dashboard-theme";
 type SortKey = "updated" | "name" | "stars";
 
 export default function DashboardPage() {
-  const { isDark, searchQuery, selectedRepoId, openNewRepoModal, repositories, reposLoading } =
-    useDashboard();
+  const {
+    isDark,
+    searchQuery,
+    selectedRepoId,
+    openNewRepoModal,
+    repositories,
+    reposLoading,
+  } = useDashboard();
   const [sortBy, setSortBy] = useState<SortKey>("updated");
   const [filterType, setFilterType] = useState<"all" | "public" | "private">(
-    "all"
+    "all",
   );
 
   const t = getDashboardTheme(isDark);
@@ -27,7 +33,7 @@ export default function DashboardPage() {
         (r) =>
           r.name.toLowerCase().includes(q) ||
           r.description.toLowerCase().includes(q) ||
-          r.language.toLowerCase().includes(q)
+          r.language.toLowerCase().includes(q),
       );
     }
 
@@ -109,7 +115,10 @@ export default function DashboardPage() {
               borderColor: t.border,
             }}
           >
-            <p className="text-xs font-medium uppercase tracking-wide" style={{ color: t.textMuted }}>
+            <p
+              className="text-xs font-medium uppercase tracking-wide"
+              style={{ color: t.textMuted }}
+            >
               {stat.label}
             </p>
             <p className="text-2xl font-bold mt-0.5" style={{ color: t.text }}>
@@ -135,14 +144,18 @@ export default function DashboardPage() {
             onClick={() => setFilterType(type)}
             className="px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-colors"
             style={{
-              backgroundColor: filterType === type ? t.sidebarActive : "transparent",
+              backgroundColor:
+                filterType === type ? t.sidebarActive : "transparent",
               color: filterType === type ? t.text : t.textMuted,
             }}
           >
             {type}
           </button>
         ))}
-        <div className="w-px h-5 mx-1 hidden sm:block" style={{ backgroundColor: t.border }} />
+        <div
+          className="w-px h-5 mx-1 hidden sm:block"
+          style={{ backgroundColor: t.border }}
+        />
         <SortAsc className="w-4 h-4" style={{ color: t.textMuted }} />
         <select
           value={sortBy}

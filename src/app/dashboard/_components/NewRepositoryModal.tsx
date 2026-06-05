@@ -59,7 +59,9 @@ export default function NewRepositoryModal({
       onClose();
     } catch (error: any) {
       setErrorMessage(
-        error?.response?.data?.detail || error?.message || "Failed to create repository."
+        error?.response?.data?.detail ||
+          error?.message ||
+          "Failed to create repository.",
       );
     } finally {
       setIsCreating(false);
@@ -147,7 +149,13 @@ export default function NewRepositoryModal({
                 </div>
 
                 {errorMessage ? (
-                  <div className="rounded-md border px-3 py-2 text-sm text-red-500" style={{ borderColor: "#fca5a5", backgroundColor: "#fee2e2" }}>
+                  <div
+                    className="rounded-md border px-3 py-2 text-sm text-red-500"
+                    style={{
+                      borderColor: "#fca5a5",
+                      backgroundColor: "#fee2e2",
+                    }}
+                  >
                     {errorMessage}
                   </div>
                 ) : null}
@@ -277,7 +285,7 @@ export default function NewRepositoryModal({
                 >
                   Cancel
                 </button>
-                    <button
+                <button
                   type="button"
                   onClick={handleCreate}
                   disabled={isCreating}
