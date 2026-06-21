@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   ArrowLeft,
@@ -12,22 +12,63 @@ import {
 } from "lucide-react";
 import { useDashboard } from "../../_components/DashboardContext";
 import { getDashboardTheme } from "../../_components/dashboard-theme";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import axios from "@/lib/axios";
 
-interface RepositoryDetailPageProps {
-  params: {
-    owner: string;
-    repo: string;
-  };
+interface Repository {
+  id: number;
+  owner_id: number;
+  owner_email: string;
+  name: string;
+  description: string;
+  is_private: boolean;
+  default_branch: string;
+  created_at: string;
+  updated_at: string;
 }
-
-export default function RepositoryDetailPage({
-  params,
-}: RepositoryDetailPageProps) {
-  const { owner, repo } = params;
+export default function RepositoryDetailPage() {
   const { isDark } = useDashboard();
   const theme = getDashboardTheme(isDark);
+  const [repoData, setRepoData] = useState<Repository | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const placeholder = "-";
+  const params = useParams();
+  const repoId = params.id as string;
+  useEffect(() => {
+  //   const fetchRepo = async () => {
+  //     try {
+  //       console.log("Fetching repo:", repoId);
+  //       const response = await axios.get(`/repos/${repoId}/dev/`);
+  //       console.log("Response:", response);
+  //       console.log("Data:", response.data);
+  //       setRepoData(response.data);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   fetchRepo();
+  // }, [repoId]);
+  // console.log(repoId);
+  // console.log(repoData);
+  const fetchRepo = async () => {
+  try {
+    setLoading(true);
+
+    const response = await axios.get(`/repos/${repoId}/dev/`);
+
+    console.log(response.data);
+
+    setRepoData(response.data);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // const placeholder = "-";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
@@ -40,13 +81,13 @@ export default function RepositoryDetailPage({
             Repository details
           </p>
           <h1 className="text-3xl font-semibold" style={{ color: theme.text }}>
-            {placeholder}
+            {repoData?.name}
           </h1>
           <p
             className="mt-3 max-w-2xl text-sm leading-7"
             style={{ color: theme.textMuted }}
           >
-            {placeholder}
+            {repoData?.description}
           </p>
         </div>
 
@@ -86,25 +127,28 @@ export default function RepositoryDetailPage({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-8">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-8 ">
         {[
-          { label: "Repository ID", value: placeholder },
-          { label: "Owner ID", value: placeholder },
-          { label: "Default Branch", value: placeholder },
-          { label: "Visibility", value: placeholder },
-          { label: "Created Date", value: placeholder },
-          { label: "Last Updated", value: placeholder },
+          { label: "Repository ID", value: repoData?.id },
+          { label: "Owner ID", value: repoData?.owner_id },
+          { label: "Default Branch", value: repoData?.default_branch },
+          {
+            label: "Visibility",
+            value: repoData?.is_private ? "Private" : "Public",
+          },
+          { label: "Created Date", value: repoData?.created_at },
+          { label: "Last Updated", value: repoData?.updated_at },
         ].map((item) => (
           <div
             key={item.label}
-            className="rounded-3xl border p-5"
+            className="rounded-3xl border p-5 "
             style={{
               backgroundColor: theme.elevated,
               borderColor: theme.border,
             }}
           >
             <p
-              className="text-xs uppercase tracking-[0.25em] mb-2"
+              className="text-xs uppercase tracking-[0.25em] mb-2 "
               style={{ color: theme.textMuted }}
             >
               {item.label}
@@ -161,13 +205,16 @@ export default function RepositoryDetailPage({
             </h2>
             <div className="space-y-4 text-sm">
               {[
-                { label: "Name", value: placeholder },
-                { label: "Description", value: placeholder },
-                { label: "Visibility", value: placeholder },
-                { label: "Default Branch", value: placeholder },
-                { label: "Owner", value: placeholder },
-                { label: "Created Date", value: placeholder },
-                { label: "Last Updated", value: placeholder },
+                { label: "Name", value: repoData?.name },
+                { label: "Description", value: repoData?.description },
+                {
+                  label: "Visibility",
+                  value: repoData?.is_private ? "Private" : "Public",
+                },
+                { label: "Default Branch", value: repoData?.default_branch },
+                { label: "Owner", value: repoData?.owner_email },
+                { label: "Created Date", value: repoData?.created_at },
+                { label: "Last Updated", value: repoData?.updated_at },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-9">
                   <span style={{ color: theme.textMuted }}>{item.label}</span>

@@ -47,7 +47,7 @@ export default function RepositoryCard({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Link
-              href={`/dashboard/${repo.owner}/${repo.name}`}
+              href={`/dashboard/repos/${repo.id}`}
               className="text-lg font-semibold hover:underline"
               style={{ color: t.accent }}
             >
