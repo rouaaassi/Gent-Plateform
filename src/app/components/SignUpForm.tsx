@@ -5,11 +5,8 @@ import InputField from "./InputField";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { motion } from "framer-motion";
 import { validateSignUp } from "@/utils/validateSignUp";
-import { AUTH_PATH, DASHBOARD_PATH } from "@/routes/path";
+import { AUTH_PATH } from "@/routes/path";
 import axios from "@/lib/axios";
-import { parseAuthResponse } from "@/lib/auth-session";
-import { setAuth } from "@/store/slices/auth-slice";
-import { useDispatch } from "react-redux";
 import { AxiosError, isAxiosError } from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -30,7 +27,6 @@ interface ApiError {
 
 export default function SignUpForm() {
   const router = useRouter();
-  const dispatch = useDispatch();
   const isDark = useSelector((state: RootState) => state.theme.isDark);
   const [formData, setFormData] = useState<SignUpData>({
     email: "",
@@ -70,14 +66,10 @@ export default function SignUpForm() {
 
     try {
       const response = await axios.post("/auth/register/", formData);
-      const { token, refreshToken, user } = parseAuthResponse(response.data);
-
-      if (token) {
-        dispatch(setAuth({ token, user, refreshToken }));
-        router.replace(DASHBOARD_PATH.ROOT);
-      } else {
-        router.push(`${AUTH_PATH.LOGIN}?signup=success`);
-      }
+      
+      // بعد التسجيل الناجح، توجيه المستخدم إلى صفحة تسجيل الدخول
+      router.push(`${AUTH_PATH.LOGIN}?signup=success`);
+      
     } catch (err) {
       let errorMessage = "Sign up failed";
 

@@ -24,9 +24,21 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     setIsHydrated(true);
+    
+    // فحص إذا كان المستخدم قادم من صفحة التسجيل
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('signup') === 'success') {
+      setSuccessMessage("Account created successfully! Please sign in with your credentials.");
+      
+      // إزالة معامل URL بعد عرض الرسالة
+      const url = new URL(window.location.href);
+      url.searchParams.delete('signup');
+      window.history.replaceState({}, '', url.pathname);
+    }
   }, []);
 
   const handleLogin = async () => {
@@ -48,6 +60,14 @@ export default function LoginPage() {
 
       if (!token) {
         throw new Error("Login failed: token not received from server");
+      }
+
+      // حفظ التوكن في localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
       }
 
       dispatch(setAuth({ token, user, refreshToken }));
@@ -72,6 +92,16 @@ export default function LoginPage() {
             </div>
             <h1 className={`text-3xl font-bold text-center mb-2 ${isDark ? "text-white" : "text-[#2d3e2d]"}`}>Sign In to Gent</h1>
             <p className={`text-center text-sm mb-8 ${isDark ? "text-white/60" : "text-[#2d3e2d]/60"}`}>Welcome back!</p>
+            
+            {successMessage && (
+              <div className={`mb-4 p-3 rounded-md border text-sm ${
+                isDark
+                  ? "bg-green-500/20 border-green-500/30 text-green-400"
+                  : "bg-green-50 border-green-200 text-green-600"
+              }`}>
+                {successMessage}
+              </div>
+            )}
             
             <div className="mb-4">
               <label className={`text-sm font-bold mb-2 block ${isDark ? "text-white/80" : "text-[#2d3e2d]/80"}`}>Email</label>

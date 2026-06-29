@@ -61,16 +61,16 @@ export default function Home() {
       >
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <motion.div className="space-y-6" variants={itemVariants}>
-            <h1 className={`text-5xl md:text-6xl lg:text-7xl font-bold leading-tight drop-shadow-lg ${
+            <h1 className={`text-3xl md:text-6xl lg:text-5xl font-bold leading-tight drop-shadow-lg ${
               isDark ? "text-white" : "text-[#1a2e1a]"
             }`}>
-              Version Control,
-              <span className={isDark ? "text-[#7dd3fc]" : "text-[#2d3e2d]"}> Simplified</span>
+              Version Control That 
+              <span className={isDark ? "text-[#7dd3fc]" : "text-[#2d3e2d] max-w-xl"}> moves at the speed of your terminal</span>
             </h1>
             <p className={`text-lg leading-relaxed max-w-xl ${
               isDark ? "text-gray-300" : "text-[#2d3e2d]"
             }`}>
-              Gent is a lightweight, modern version control system designed for developers who value simplicity and efficiency. Manage your repositories, collaborate with teams, and host your code with an intuitive interface inspired by industry standards.
+              Gent is a modern, Git-shaped platform. A blazing-fast CLI for everyday work, and a beautiful web dashboard that updates the instant you push.
             </p>
             <motion.div className="flex flex-col sm:flex-row gap-4 pt-4" variants={itemVariants}>
               <motion.a
@@ -83,7 +83,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Get Started Free <ArrowRight className="w-4 h-4" />
+                Get started — it's free <ArrowRight className="w-4 h-4" />
               </motion.a>
               <motion.button 
                 className={`px-8 py-3 rounded-lg border-2 transition-all font-bold ${
@@ -94,9 +94,25 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                View Documentation
+                Browse the CLI
               </motion.button>
             </motion.div>
+            
+            {/* Features list */}
+            <div className="flex flex-wrap gap-8 pt-6">
+              <div className="flex items-center gap-2">
+                <CheckCircle className={`w-5 h-5 ${isDark ? "text-[#7dd3fc]" : "text-[#2d3e2d]"}`} />
+                <span className={`text-sm ${isDark ? "text-gray-300" : "text-[#2d3e2d]"}`}>Free for personal use</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className={`w-5 h-5 ${isDark ? "text-[#7dd3fc]" : "text-[#2d3e2d]"}`} />
+                <span className={`text-sm ${isDark ? "text-gray-300" : "text-[#2d3e2d]"}`}>macOS, Linux, Windows</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className={`w-5 h-5 ${isDark ? "text-[#7dd3fc]" : "text-[#2d3e2d]"}`} />
+                <span className={`text-sm ${isDark ? "text-gray-300" : "text-[#2d3e2d]"}`}>Open beta</span>
+              </div>
+            </div>
           </motion.div>
           <motion.div 
             className="relative"
