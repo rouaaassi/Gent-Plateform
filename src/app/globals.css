@@ -122,4 +122,22 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Add cursor pointer to interactive elements */
+  button, 
+  a,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="radio"],
+  input[type="checkbox"],
+  select,
+  label[for] {
+    @apply cursor-pointer;
+  }
+
+  button:disabled,
+  [disabled] {
+    @apply cursor-not-allowed;
+  }
 }

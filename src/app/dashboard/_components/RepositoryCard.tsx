@@ -2,15 +2,29 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Star, GitFork, Clock, Lock, Globe } from "lucide-react";
+import { Star, GitFork, Clock, Lock, Globe, GitBranch } from "lucide-react";
 import { getDashboardTheme } from "./dashboard-theme";
-import type { MockRepository } from "../_data/mock-repos";
+import { Repository } from "@/types/repository";
+import { DASHBOARD_PATH } from "@/routes/path";
 
 interface RepositoryCardProps {
-  repo: MockRepository;
+  repo: Repository;
   isDark: boolean;
   index: number;
   highlighted?: boolean;
+}
+
+function getRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} months ago`;
+  return `${Math.floor(diffInSeconds / 31536000)} years ago`;
 }
 
 export default function RepositoryCard({
@@ -47,12 +61,11 @@ export default function RepositoryCard({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Link
-              href={`#repo/${repo.owner}/${repo.name}`}
+              href={DASHBOARD_PATH.REPOSITORY(repo.owner_id, repo.name)}
               className="text-lg font-semibold hover:underline"
               style={{ color: t.accent }}
             >
-              {repo.owner}
-              <span style={{ color: t.textMuted }}>/</span>
+              <span style={{ color: t.textMuted }}>{repo.owner_email.split('@')[0]}/</span>
               {repo.name}
             </Link>
             <span
@@ -62,7 +75,7 @@ export default function RepositoryCard({
                 color: t.textMuted,
               }}
             >
-              {repo.isPrivate ? (
+              {repo.is_private ? (
                 <>
                   <Lock className="w-3 h-3" />
                   Private
@@ -86,46 +99,40 @@ export default function RepositoryCard({
           )}
 
           <div className="flex flex-wrap items-center gap-4 text-xs">
-            <span className="inline-flex items-center gap-1.5">
-              <span
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: repo.languageColor }}
-              />
-              <span style={{ color: t.textSecondary }}>{repo.language}</span>
-            </span>
             <span
               className="inline-flex items-center gap-1"
               style={{ color: t.textMuted }}
             >
-              <Star className="w-3.5 h-3.5" />
-              {repo.stars}
-            </span>
-            <span
-              className="inline-flex items-center gap-1"
-              style={{ color: t.textMuted }}
-            >
-              <GitFork className="w-3.5 h-3.5" />
-              {repo.forks}
+              <GitBranch className="w-3.5 h-3.5" />
+              {repo.default_branch}
             </span>
             <span
               className="inline-flex items-center gap-1"
               style={{ color: t.textMuted }}
             >
               <Clock className="w-3.5 h-3.5" />
-              Updated {repo.updatedAt}
+              Updated {getRelativeTime(repo.updated_at)}
+            </span>
+            <span
+              className="text-xs"
+              style={{ color: t.textMuted }}
+            >
+              Created {getRelativeTime(repo.created_at)}
             </span>
           </div>
         </div>
 
-        <div
-          className="shrink-0 px-2.5 py-1 rounded-md text-xs font-mono border"
-          style={{
-            borderColor: t.border,
-            color: t.textMuted,
-            backgroundColor: t.canvas,
-          }}
-        >
-          {repo.defaultBranch}
+        <div className="flex items-center gap-2">
+          <div
+            className="shrink-0 px-2.5 py-1 rounded-md text-xs font-mono border"
+            style={{
+              borderColor: t.border,
+              color: t.textMuted,
+              backgroundColor: t.canvas,
+            }}
+          >
+            ID: {repo.id}
+          </div>
         </div>
       </div>
     </motion.article>

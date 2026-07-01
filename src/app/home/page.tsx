@@ -11,6 +11,7 @@ import NotificationCard from "@/app/components/NotificationCard";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
+
 export default function Home() {
   const isDark = useSelector((state: RootState) => state.theme.isDark);
   const [isHydrated, setIsHydrated] = useState(false);

@@ -95,8 +95,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           isDark={isDark}
           onToggleTheme={() => dispatch(toggleTheme())}
           onNewRepo={() => setNewRepoOpen(true)}
-          selectedRepoId={selectedRepoId}
-          onSelectRepo={setSelectedRepoId}
           mobileOpen={mobileSidebarOpen}
           onMobileClose={() => setMobileSidebarOpen(false)}
         />

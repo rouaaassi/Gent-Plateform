@@ -42,6 +42,12 @@ const authSlice = createSlice({
         if (action.payload.refreshToken) {
           localStorage.setItem("refreshToken", action.payload.refreshToken);
         }
+        console.log("✅ Auth tokens saved to localStorage via Redux:", {
+          token: action.payload.token.substring(0, 20) + "...",
+          refreshToken: action.payload.refreshToken 
+            ? action.payload.refreshToken.substring(0, 20) + "..." 
+            : "none"
+        });
       }
     },
     setUser(state, action: PayloadAction<UserProfile | null>) {
@@ -51,8 +57,17 @@ const authSlice = createSlice({
       if (typeof window === "undefined") return;
       const token = getStoredToken();
       const refreshToken = getStoredRefreshToken();
-      if (token) state.token = token;
-      if (refreshToken) state.refreshToken = refreshToken;
+      if (token) {
+        state.token = token;
+        console.log("🔄 Token restored from localStorage:", token.substring(0, 20) + "...");
+      }
+      if (refreshToken) {
+        state.refreshToken = refreshToken;
+        console.log("🔄 Refresh token restored from localStorage:", refreshToken.substring(0, 20) + "...");
+      }
+      if (!token && !refreshToken) {
+        console.log("ℹ️ No tokens found in localStorage");
+      }
     },
     logout(state) {
       state.token = null;

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { GitBranch } from "lucide-react";
+import { GitBranch, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import axios from "@/lib/axios";
 import { parseAuthResponse } from "@/lib/auth-session";
@@ -68,9 +68,16 @@ export default function LoginPage() {
         if (refreshToken) {
           localStorage.setItem('refreshToken', refreshToken);
         }
+        console.log('✅ Token saved to localStorage:', {
+          token: token.substring(0, 20) + '...',
+          refreshToken: refreshToken ? refreshToken.substring(0, 20) + '...' : 'none'
+        });
       }
 
+      // حفظ في Redux store
       dispatch(setAuth({ token, user, refreshToken }));
+      
+      // توجيه للـ Dashboard
       router.replace(DASHBOARD_PATH.ROOT);
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || "Login failed");
@@ -82,47 +89,156 @@ export default function LoginPage() {
   if (!isHydrated) return null;
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDark ? "bg-gradient-to-br from-[#0f1419] via-[#1a1f2e] to-[#151b28]" : "bg-gradient-to-br from-[#bed19e] via-[#a8c88a] to-[#9bc07a]"}`}>
+    <div className={`min-h-screen ${
+      isDark ? "bg-[#0d1117]" : "bg-[#f6f8fa]"
+    }`}>
       <SharedNavigation />
-      <div className="flex-1 flex items-center justify-center py-8 px-4 mt-20">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <div className={`rounded-2xl shadow-2xl p-8 border ${isDark ? "border-white/20 bg-[#0f1419]/95" : "border-[#5A7863]/30 bg-white/95"}`}>
+      
+      <div className="flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md space-y-8">
+          
+          {/* Header */}
+          <div className="text-center">
             <div className="flex justify-center mb-6">
-              <GitBranch className={`w-12 h-12 ${isDark ? "text-[#7dd3fc]" : "text-[#5A7863]"}`} />
-            </div>
-            <h1 className={`text-3xl font-bold text-center mb-2 ${isDark ? "text-white" : "text-[#2d3e2d]"}`}>Sign In to Gent</h1>
-            <p className={`text-center text-sm mb-8 ${isDark ? "text-white/60" : "text-[#2d3e2d]/60"}`}>Welcome back!</p>
-            
-            {successMessage && (
-              <div className={`mb-4 p-3 rounded-md border text-sm ${
-                isDark
-                  ? "bg-green-500/20 border-green-500/30 text-green-400"
-                  : "bg-green-50 border-green-200 text-green-600"
+              <div className={`p-3 rounded-lg ${
+                isDark 
+                  ? "bg-[#21262d] border border-[#30363d]" 
+                  : "bg-white border border-[#d1d9e0]"
               }`}>
-                {successMessage}
+                <GitBranch className={`w-8 h-8 ${
+                  isDark ? "text-[#f0f6fc]" : "text-[#24292f]"
+                }`} />
+              </div>
+            </div>
+            <h2 className={`text-2xl font-semibold ${
+              isDark ? "text-[#f0f6fc]" : "text-[#24292f]"
+            }`}>
+              Sign in to Gent
+            </h2>
+          </div>
+
+          {/* Form Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className={`rounded-lg border p-8 shadow-sm ${
+              isDark
+                ? "bg-[#21262d] border-[#30363d]"
+                : "bg-white border-[#d1d9e0]"
+            }`}
+          >
+            {/* Success Message */}
+            {successMessage && (
+              <div className={`mb-6 flex items-center gap-3 text-sm p-3 rounded-md border ${
+                isDark
+                  ? "bg-[#0d4a2c] border-[#238636] text-[#2ea043]"
+                  : "bg-[#dcfce7] border-[#22c55e] text-[#15803d]"
+              }`}>
+                <span>{successMessage}</span>
               </div>
             )}
-            
-            <div className="mb-4">
-              <label className={`text-sm font-bold mb-2 block ${isDark ? "text-white/80" : "text-[#2d3e2d]/80"}`}>Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleLogin()} disabled={isLoading} className={`w-full px-4 py-2 rounded-lg border-2 ${isDark ? "border-white/20 bg-white/10 text-white" : "border-[#5A7863]/30 bg-white/50 text-[#2d3e2d]"}`} />
+
+            {/* Error Message */}
+            {error && (
+              <div className={`mb-6 flex items-center gap-3 text-sm p-3 rounded-md border ${
+                isDark
+                  ? "bg-[#ffeef0] border-[#f85149] text-[#d1242f]"
+                  : "bg-[#fff1f3] border-[#d1242f] text-[#cf222e]"
+              }`}>
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-5">
+              {/* Email Field */}
+              <div className="space-y-2">
+                <label className={`text-sm font-medium block ${
+                  isDark ? "text-[#f0f6fc]" : "text-[#24292f]"
+                }`}>
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  placeholder="Enter your email"
+                  className={`w-full px-3 py-2 text-sm rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    isDark
+                      ? "border-[#30363d] bg-[#21262d] text-[#f0f6fc] placeholder:text-[#8d96a0] focus:border-[#1f6feb] focus:ring-[#1f6feb]/25"
+                      : "border-[#d1d9e0] bg-[#ffffff] text-[#24292f] placeholder:text-[#656d76] focus:border-[#0969da] focus:ring-[#0969da]/25"
+                  }`}
+                  required
+                />
+              </div>
+
+              {/* Password Field */}
+              <div className="space-y-2">
+                <label className={`text-sm font-medium block ${
+                  isDark ? "text-[#f0f6fc]" : "text-[#24292f]"
+                }`}>
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    placeholder="Enter your password"
+                    className={`w-full px-3 py-2 pr-10 text-sm rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      isDark
+                        ? "border-[#30363d] bg-[#21262d] text-[#f0f6fc] placeholder:text-[#8d96a0] focus:border-[#1f6feb] focus:ring-[#1f6feb]/25"
+                        : "border-[#d1d9e0] bg-[#ffffff] text-[#24292f] placeholder:text-[#656d76] focus:border-[#0969da] focus:ring-[#0969da]/25"
+                    }`}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer transition-colors ${
+                      isDark ? "text-[#8d96a0] hover:text-[#f0f6fc]" : "text-[#656d76] hover:text-[#24292f]"
+                    }`}
+                  >
+                    {showPassword ? <AiFillEyeInvisible size={16} /> : <AiFillEye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                type="submit"
+                disabled={isLoading}
+                className={`w-full font-medium py-2.5 px-4 rounded-md transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
+                  isDark
+                    ? "bg-[#238636] text-white hover:bg-[#2ea043] disabled:bg-[#238636]"
+                    : "bg-[#1f883d] text-white hover:bg-[#1a7f37] disabled:bg-[#1f883d]"
+                }`}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                {isLoading ? "Signing in..." : "Sign in"}
+              </motion.button>
+            </form>
+
+            {/* Sign Up Link */}
+            <div className={`text-center text-sm mt-6 ${
+              isDark ? "text-[#8d96a0]" : "text-[#656d76]"
+            }`}>
+              New to Gent?{" "}
+              <Link
+                href={AUTH_PATH.SIGNIN}
+                className={`font-medium hover:underline ${
+                  isDark ? "text-[#58a6ff]" : "text-[#0969da]"
+                }`}
+              >
+                Create an account
+              </Link>
             </div>
-            
-            <div className="mb-4 relative">
-              <label className={`text-sm font-bold mb-2 block ${isDark ? "text-white/80" : "text-[#2d3e2d]/80"}`}>Password</label>
-              <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleLogin()} disabled={isLoading} className={`w-full px-4 py-2 pr-10 rounded-lg border-2 ${isDark ? "border-white/20 bg-white/10 text-white" : "border-[#5A7863]/30 bg-white/50 text-[#2d3e2d]"}`} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-10">{showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}</button>
-            </div>
-            
-            {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
-            
-            <button type="button" onClick={handleLogin} disabled={isLoading} className={`w-full py-3 rounded-lg font-bold ${isDark ? "bg-gradient-to-r from-[#7dd3fc] to-[#06b6d4] text-[#0f1419]" : "bg-gradient-to-r from-[#5A7863] to-[#4a6853] text-white"} disabled:opacity-50`}>{isLoading ? "Signing In..." : "Sign In"}</button>
-            
-            <div className={`mt-6 text-center text-sm ${isDark ? "text-white/70" : "text-[#2d3e2d]/70"}`}>
-              Don&apos;t have an account? <Link href={AUTH_PATH.SIGNIN} className={`font-medium ${isDark ? "text-[#7dd3fc]" : "text-[#5A7863]"}`}>Register</Link>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
