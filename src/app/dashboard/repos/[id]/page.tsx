@@ -36,39 +36,24 @@ export default function RepositoryDetailPage() {
   const params = useParams();
   const repoId = params.id as string;
   useEffect(() => {
-  //   const fetchRepo = async () => {
-  //     try {
-  //       console.log("Fetching repo:", repoId);
-  //       const response = await axios.get(`/repos/${repoId}/dev/`);
-  //       console.log("Response:", response);
-  //       console.log("Data:", response.data);
-  //       setRepoData(response.data);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
+    const fetchRepo = async () => {
+      try {
+        console.log("Fetching repo:", repoId);
+        const response = await axios.get(`/repos/${repoId}/dev/`);
+        console.log("Response:", response);
+        console.log("Data:", response.data);
+        setRepoData(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  //   fetchRepo();
-  // }, [repoId]);
-  // console.log(repoId);
-  // console.log(repoData);
-  const fetchRepo = async () => {
-  try {
-    setLoading(true);
+    fetchRepo();
+  }, [repoId]);
+  console.log(repoId);
+  console.log(repoData);
 
-    const response = await axios.get(`/repos/${repoId}/dev/`);
-
-    console.log(response.data);
-
-    setRepoData(response.data);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // const placeholder = "-";
+  const placeholder = "-";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
