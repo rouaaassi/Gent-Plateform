@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Lock, Globe, Loader2, AlertTriangle } from "lucide-react";
 import { getDashboardTheme } from "./dashboard-theme";
@@ -11,13 +12,24 @@ interface NewRepositoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   isDark: boolean;
+  onCreate: (repo: {
+    name: string;
+    description: string;
+    isPrivate: boolean;
+  }) => Promise<void>;
 }
 
 export default function NewRepositoryModal({
   isOpen,
   onClose,
   isDark,
+  onCreate,
 }: NewRepositoryModalProps) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const t = getDashboardTheme(isDark);
   const [formData, setFormData] = useState<CreateRepositoryRequest>({
     name: "",
@@ -92,10 +104,10 @@ export default function NewRepositoryModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px]"
+            className="fixed inset-0 z-60 bg-black/50 backdrop-blur-[2px]"
             onClick={onClose}
           />
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-70 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -113,10 +125,7 @@ export default function NewRepositoryModal({
                 className="flex items-center justify-between px-5 py-4 border-b flex-shrink-0"
                 style={{ borderColor: t.border }}
               >
-                <h2
-                  className="text-lg font-semibold"
-                  style={{ color: t.text }}
-                >
+                <h2 className="text-lg font-semibold" style={{ color: t.text }}>
                   Create a new repository
                 </h2>
                 <button

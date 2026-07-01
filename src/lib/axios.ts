@@ -2,7 +2,11 @@ import ax from "axios";
 import { toast } from "sonner";
 import API_ROUTES from "../constant/api-routes";
 import { AUTH_PATH } from "../routes/path";
-import { clearAuthStorage, getStoredRefreshToken, getStoredToken } from "./auth-session";
+import {
+  clearAuthStorage,
+  getStoredRefreshToken,
+  getStoredToken,
+} from "./auth-session";
 
 // Base API URL
 export const API_BASE_URL = "https://gent-api.onrender.com/api";
@@ -41,11 +45,13 @@ const axios = ax.create({
 axios.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      // Only add token for non-auth endpoints
-      const isAuthEndpoint = 
-        config.url?.includes('/auth/login') ||
-        config.url?.includes('/auth/register') ||
-        config.url?.includes('/auth/signup');
+      config.headers = config.headers || {};
+      const requestUrl = String(config.url ?? "").toLowerCase();
+      const isAuthEndpoint =
+        requestUrl.includes("/auth/login") ||
+        requestUrl.includes("/auth/register") ||
+        requestUrl.includes("/auth/signup") ||
+        requestUrl.includes("/auth/token/refresh");
 
       if (!isAuthEndpoint) {
         const token = getToken();
@@ -62,11 +68,13 @@ axios.interceptors.request.use(
       delete config.headers["Pragma"];
       delete config.headers["Expires"];
 
-      console.log(`[${new Date().toISOString()}] ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(
+        `[${new Date().toISOString()}] ${config.method?.toUpperCase()} ${config.url}`,
+      );
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor
@@ -78,7 +86,11 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
 
     // Handle redirects (3xx status codes)
-    if (error?.response?.status && error.response.status >= 300 && error.response.status < 400) {
+    if (
+      error?.response?.status &&
+      error.response.status >= 300 &&
+      error.response.status < 400
+    ) {
       const redirectUrl = error.response.headers.location;
       if (redirectUrl) {
         // Follow the redirect with the same method
@@ -118,13 +130,19 @@ axios.interceptors.response.use(
         const newToken =
           data?.token ?? data?.access ?? data?.access_token ?? null;
         const newRefresh =
-          data?.refreshToken ?? data?.refresh ?? data?.refresh_token ?? refreshToken;
+          data?.refreshToken ??
+          data?.refresh ??
+          data?.refresh_token ??
+          refreshToken;
 
         if (newToken) {
           localStorage.setItem("token", String(newToken));
           localStorage.setItem("refreshToken", String(newRefresh));
           if (data.permissions) {
-            localStorage.setItem("permissions", JSON.stringify(data.permissions));
+            localStorage.setItem(
+              "permissions",
+              JSON.stringify(data.permissions),
+            );
           }
 
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -139,7 +157,7 @@ axios.interceptors.response.use(
 
     // For other errors, just reject without showing toast
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axios;

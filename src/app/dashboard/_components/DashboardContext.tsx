@@ -3,17 +3,19 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "@/lib/axios";
 import { RootState } from "@/store";
 import { toggleTheme } from "@/store/slices/theme-slice";
 import { useProfile } from "@/hooks/use-auth-profile";
 import { getStoredToken } from "@/lib/auth-session";
 import { hydrateAuth } from "@/store/slices/auth-slice";
 import { AUTH_PATH } from "@/routes/path";
+import API_ROUTES from "@/constant/api-routes";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardTopBar from "./DashboardTopBar";
 import NewRepositoryModal from "./NewRepositoryModal";
 import { getDashboardTheme } from "./dashboard-theme";
-import { MOCK_REPOSITORIES } from "../_data/mock-repos";
+import type { MockRepository } from "../_data/mock-repos";
 
 type DashboardContextValue = {
   isDark: boolean;
@@ -22,13 +24,16 @@ type DashboardContextValue = {
   selectedRepoId: string | null;
   setSelectedRepoId: (id: string | null) => void;
   openNewRepoModal: () => void;
+  repositories: MockRepository[];
+  reposLoading: boolean;
 };
 
 const DashboardCtx = createContext<DashboardContextValue | null>(null);
 
 export function useDashboard() {
   const ctx = useContext(DashboardCtx);
-  if (!ctx) throw new Error("useDashboard must be used within DashboardProvider");
+  if (!ctx)
+    throw new Error("useDashboard must be used within DashboardProvider");
   return ctx;
 }
 
@@ -42,6 +47,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [selectedRepoId, setSelectedRepoId] = useState<string | null>(null);
   const [newRepoOpen, setNewRepoOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [repositories, setRepositories] = useState<MockRepository[]>([]);
+  const [reposLoading, setReposLoading] = useState(true);
+  const [repoCreateLoading, setRepoCreateLoading] = useState(false);
 
   const t = getDashboardTheme(isDark);
 
@@ -56,20 +64,117 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     if (!authChecked) return;
     if (!hasToken) {
       router.replace(AUTH_PATH.LOGIN);
+      return;
     }
+
+    let active = true;
+    const loadRepos = async () => {
+      setReposLoading(true);
+      try {
+        const { data } = await axios.get(API_ROUTES.REPOS.LIST);
+        if (!active) return;
+        if (!Array.isArray(data)) {
+          setRepositories([]);
+          return;
+        }
+
+        setRepositories(
+          data.map((repo: any) => ({
+            id: String(repo.id ?? repo.owner_email ?? repo.name ?? ""),
+            name: String(repo.name ?? ""),
+            owner:
+              typeof repo.owner === "string" && repo.owner
+                ? repo.owner
+                : typeof repo.owner_email === "string"
+                  ? repo.owner_email.split("@")[0]
+                  : "unknown",
+            description: String(repo.description ?? ""),
+            isPrivate: Boolean(repo.is_private),
+            stars: typeof repo.stars === "number" ? repo.stars : 0,
+            forks: typeof repo.forks === "number" ? repo.forks : 0,
+            language: String(repo.language ?? "Unknown"),
+            languageColor: String(repo.language_color ?? "#94a3b8"),
+            updatedAt: repo.updated_at
+              ? new Date(repo.updated_at).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                })
+              : "",
+            defaultBranch: String(repo.default_branch ?? "main"),
+          })),
+        );
+      } catch (error) {
+        console.error("Failed to load repositories:", error);
+        setRepositories([]);
+      } finally {
+        if (active) setReposLoading(false);
+      }
+    };
+
+    loadRepos();
+
+    return () => {
+      active = false;
+    };
   }, [authChecked, hasToken, router]);
+
+  const handleCreateRepository = async (repo: {
+    name: string;
+    description: string;
+    isPrivate: boolean;
+  }): Promise<void> => {
+    if (!repo.name.trim()) throw new Error("Repository name is required");
+
+    setRepoCreateLoading(true);
+    try {
+      const { data } = await axios.post(API_ROUTES.REPOS.CREATE, {
+        name: repo.name,
+        description: repo.description,
+        is_private: repo.isPrivate,
+      });
+
+      const createdRepo: MockRepository = {
+        id: String(data.id ?? data.owner_email ?? data.name ?? ""),
+        name: String(data.name ?? repo.name),
+        owner:
+          typeof data.owner === "string" && data.owner
+            ? data.owner
+            : typeof data.owner_email === "string"
+              ? data.owner_email.split("@")[0]
+              : "unknown",
+        description: String(data.description ?? repo.description ?? ""),
+        isPrivate: Boolean(data.is_private),
+        stars: 0,
+        forks: 0,
+        language: "Unknown",
+        languageColor: "#94a3b8",
+        updatedAt: data.updated_at
+          ? new Date(data.updated_at).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+            })
+          : "",
+        defaultBranch: String(data.default_branch ?? "main"),
+      };
+
+      setRepositories((current) => [createdRepo, ...current]);
+      setSelectedRepoId(createdRepo.id);
+    } finally {
+      setRepoCreateLoading(false);
+    }
+  };
 
   useProfile(authChecked && hasToken);
 
   const filteredCount = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return MOCK_REPOSITORIES.length;
-    return MOCK_REPOSITORIES.filter(
+    if (!q) return repositories.length;
+    return repositories.filter(
       (r) =>
         r.name.toLowerCase().includes(q) ||
-        r.description.toLowerCase().includes(q)
+        r.description.toLowerCase().includes(q),
     ).length;
-  }, [searchQuery]);
+  }, [searchQuery, repositories]);
 
   if (!authChecked || !hasToken) return null;
 
@@ -82,6 +187,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         selectedRepoId,
         setSelectedRepoId,
         openNewRepoModal: () => setNewRepoOpen(true),
+        repositories,
+        reposLoading,
       }}
     >
       <div
@@ -116,6 +223,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           isOpen={newRepoOpen}
           onClose={() => setNewRepoOpen(false)}
           isDark={isDark}
+          onCreate={handleCreateRepository}
         />
       </div>
     </DashboardCtx.Provider>
