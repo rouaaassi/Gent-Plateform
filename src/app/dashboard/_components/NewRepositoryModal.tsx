@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Lock, Globe, Loader2, AlertTriangle } from "lucide-react";
 import { getDashboardTheme } from "./dashboard-theme";
