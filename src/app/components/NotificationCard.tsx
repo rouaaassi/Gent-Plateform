@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useState, useEffect } from "react";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight, Zap, X } from "lucide-react";
 import Link from "next/link";
 import { AUTH_PATH } from "@/routes/path";
 
@@ -57,6 +57,10 @@ export default function NotificationCard() {
 
   const current = notifications[currentIndex];
 
+  const handleClose = () => {
+    setIsVisible(false);
+  };
+
   if (!isHydrated) return null;
 
   return (
@@ -91,6 +95,21 @@ export default function NotificationCard() {
                 : "border-[#5A7863]/30 bg-white/95"
             }`}
           >
+            {/* Close Button */}
+            <motion.button
+              onClick={handleClose}
+              className={`absolute top-2 right-2 p-1.5 rounded-lg transition-all ${
+                isDark
+                  ? "bg-white/5 hover:bg-white/10 text-white/60 hover:text-white"
+                  : "bg-black/5 hover:bg-black/10 text-gray-600 hover:text-gray-900"
+              }`}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </motion.button>
+
             {current.type === "info" ? (
               <>
                 {/* Info Card */}
