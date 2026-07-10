@@ -1,13 +1,14 @@
 "use client";
 
 import { AUTH_PATH } from "@/routes/path";
-import { GitBranch, Code2, Users, Zap, Shield, GitPullRequest, ArrowRight, Rocket, Target, Lightbulb, CheckCircle, Star, MessageSquare } from "lucide-react";
+import { GitBranch, Code2, Users, Zap, Shield, GitPullRequest, ArrowRight, Rocket, Target, Lightbulb, CheckCircle, Star, MessageSquare, Activity, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import SharedNavigation from "@/app/components/SharedNavigation";
 import SharedFooter from "@/app/components/SharedFooter";
 import NotificationCard from "@/app/components/NotificationCard";
+import DashboardMockup from "@/app/components/DashboardMockup";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -141,6 +142,126 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* NEW SECTION: Dashboard Preview with Stats */}
+      <motion.section 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Left Side: Dashboard Mockup */}
+          <motion.div 
+            className="order-1 lg:order-1"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <DashboardMockup />
+          </motion.div>
+
+          {/* Right Side: Badge, Title, Description */}
+          <motion.div className="space-y-6 order-2 lg:order-2" variants={itemVariants}>
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="inline-flex"
+            >
+              <span className={`px-4 py-2 rounded-full text-sm font-semibold border ${
+                isDark
+                  ? "bg-[#7dd3fc]/10 text-[#7dd3fc] border-[#7dd3fc]/20"
+                  : "bg-[#5A7863]/10 text-[#5A7863] border-[#5A7863]/20"
+              }`}>
+                 Real-time Dashboard
+              </span>
+            </motion.div>
+
+            {/* Title */}
+            <h2 className={`text-4xl md:text-5xl font-bold leading-tight ${
+              isDark ? "text-white" : "text-[#2d3e2d]"
+            }`}>
+              Track Every Commit,
+              <br />
+              <span className={isDark ? "text-[#7dd3fc]" : "text-[#5A7863]"}>
+                Visualize Your Progress
+              </span>
+            </h2>
+
+            {/* Description */}
+            <p className={`text-lg leading-relaxed ${
+              isDark ? "text-gray-300" : "text-[#4a5f4a]"
+            }`}>
+              Get instant insights into your projects with our beautiful dashboard. Monitor activity, track contributions, and visualize your team's productivity with real-time statistics and elegant charts.
+            </p>
+
+            {/* Feature List */}
+            <div className="space-y-4 pt-4">
+              {[
+                
+                {
+                  icon: TrendingUp,
+                  title: "Performance Analytics",
+                  description: "Track code velocity and team productivity metrics"
+                },
+                {
+                  icon: Users,
+                  title: "Team Insights",
+                  description: "Understand collaboration patterns and contributions"
+                },
+              ].map((feature, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className={`flex gap-4 p-4 rounded-lg border transition-all ${
+                    isDark
+                      ? "bg-white/5 border-[#7dd3fc]/10 hover:bg-white/10 hover:border-[#7dd3fc]/20"
+                      : "bg-white/30 border-[#5A7863]/20 hover:bg-white/50 hover:border-[#5A7863]/30"
+                  }`}
+                >
+                  <feature.icon className={`w-6 h-6 flex-shrink-0 ${
+                    isDark ? "text-[#7dd3fc]" : "text-[#5A7863]"
+                  }`} />
+                  <div>
+                    <h4 className={`font-semibold mb-1 ${
+                      isDark ? "text-white" : "text-[#2d3e2d]"
+                    }`}>
+                      {feature.title}
+                    </h4>
+                    <p className={`text-sm ${
+                      isDark ? "text-gray-400" : "text-[#4a5f4a]"
+                    }`}>
+                      {feature.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* CTA Button */}
+            <motion.a
+              href={AUTH_PATH.LOGIN}
+              className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${
+                isDark
+                  ? "bg-[#7dd3fc] text-[#0f1419] hover:shadow-lg hover:shadow-[#7dd3fc]/50"
+                  : "bg-[#5A7863] text-white hover:shadow-lg hover:shadow-[#5A7863]/50"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Explore Dashboard
+              <ArrowRight className="w-4 h-4" />
+            </motion.a>
           </motion.div>
         </div>
       </motion.section>
@@ -354,23 +475,184 @@ export default function Home() {
             ))}
           </motion.div>
           <motion.div 
-            className={`relative h-96 rounded-2xl overflow-hidden border ${
+            className={`relative rounded-2xl overflow-hidden border shadow-2xl ${
               isDark
-                ? "border-white/20 bg-white/10 backdrop-blur-sm"
-                : "border-[#2d3e2d]/30 bg-white/40 backdrop-blur-sm"
+                ? "border-[#7dd3fc]/20 bg-gradient-to-br from-[#0f1419] to-[#1a1f2e]"
+                : "border-[#5A7863]/20 bg-gradient-to-br from-white to-gray-50"
             }`}
             variants={floatingVariants}
             animate="animate"
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${
-              isDark ? "from-[#5A7863]/20 to-transparent" : "from-[#2d3e2d]/10 to-transparent"
-            }`}></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <GitBranch className={`w-24 h-24 mx-auto mb-4 ${isDark ? "text-white/30" : "text-[#2d3e2d]/30"}`} />
-                <p className={`font-medium ${isDark ? "text-white/50" : "text-[#2d3e2d]/50"}`}>Gent Dashboard Preview</p>
+            {/* Glow Effect */}
+            <div className={`absolute inset-0 opacity-30 blur-3xl ${
+              isDark
+                ? "bg-gradient-to-tr from-[#7dd3fc]/20 via-[#06b6d4]/20 to-transparent"
+                : "bg-gradient-to-tr from-[#5A7863]/10 via-[#4a6853]/10 to-transparent"
+            }`} />
+
+            {/* Content */}
+            <div className="relative p-6 h-full flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-medium mb-2 ${
+                    isDark
+                      ? "bg-[#7dd3fc]/10 border-[#7dd3fc]/30 text-[#7dd3fc]"
+                      : "bg-[#5A7863]/10 border-[#5A7863]/30 text-[#5A7863]"
+                  }`}>
+                    <TrendingUp className="w-3 h-3" />
+                    Growth Analytics
+                  </div>
+                  <h4 className={`text-lg font-bold ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}>
+                    Performance Over Time
+                  </h4>
+                </div>
+                <div className={`text-right ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                  <div className="text-xs">Last 6 months</div>
+                </div>
+              </div>
+
+              {/* Stats Row */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {[
+                  { label: "Users", value: "2.4K", change: "+12%" },
+                  { label: "Revenue", value: "$45K", change: "+23%" },
+                  { label: "Growth", value: "156%", change: "+8%" },
+                ].map((stat, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className={`p-3 rounded-lg border backdrop-blur-sm ${
+                      isDark
+                        ? "bg-[#1a1f2e]/50 border-[#7dd3fc]/10"
+                        : "bg-white/50 border-[#5A7863]/20"
+                    }`}
+                  >
+                    <div className={`text-xs mb-1 ${
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    }`}>
+                      {stat.label}
+                    </div>
+                    <div className={`text-lg font-bold ${
+                      isDark ? "text-white" : "text-gray-900"
+                    }`}>
+                      {stat.value}
+                    </div>
+                    <div className="text-xs text-green-400 font-medium">
+                      {stat.change}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Line Chart */}
+              <div className="flex-1 flex flex-col">
+                <div className={`flex-1 relative rounded-lg border p-4 ${
+                  isDark
+                    ? "bg-[#1a1f2e]/30 border-[#7dd3fc]/10"
+                    : "bg-white/30 border-[#5A7863]/10"
+                }`}>
+                  {/* Y-axis labels */}
+                  <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between py-4 pr-2">
+                    {[100, 75, 50, 25, 0].map((val, idx) => (
+                      <div key={idx} className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
+                        {val}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Grid lines */}
+                  <div className="absolute left-8 right-4 top-4 bottom-8 flex flex-col justify-between">
+                    {[...Array(5)].map((_, idx) => (
+                      <div key={idx} className={`h-px ${
+                        isDark ? "bg-white/5" : "bg-gray-200"
+                      }`} />
+                    ))}
+                  </div>
+
+                  {/* Chart Area */}
+                  <div className="relative h-full pl-8 pr-4 pt-4 pb-8">
+                    <svg className="w-full h-full" viewBox="0 0 300 100" preserveAspectRatio="none">
+                      {/* Area under curve */}
+                      <defs>
+                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" className={isDark ? "stop-color-[#7dd3fc]" : "stop-color-[#5A7863]"} stopOpacity="0.3" />
+                          <stop offset="100%" className={isDark ? "stop-color-[#7dd3fc]" : "stop-color-[#5A7863]"} stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      
+                      <motion.path
+                        d="M 0 80 L 50 65 L 100 70 L 150 45 L 200 50 L 250 30 L 300 35"
+                        fill="url(#lineGradient)"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 0.5 }}
+                        transition={{ duration: 2, ease: "easeInOut" }}
+                      />
+                      
+                      {/* Line */}
+                      <motion.path
+                        d="M 0 80 L 50 65 L 100 70 L 150 45 L 200 50 L 250 30 L 300 35"
+                        fill="none"
+                        stroke={isDark ? "#7dd3fc" : "#5A7863"}
+                        strokeWidth="2"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 2, ease: "easeInOut" }}
+                      />
+                      
+                      {/* Data points */}
+                      {[
+                        { x: 0, y: 80 },
+                        { x: 50, y: 65 },
+                        { x: 100, y: 70 },
+                        { x: 150, y: 45 },
+                        { x: 200, y: 50 },
+                        { x: 250, y: 30 },
+                        { x: 300, y: 35 },
+                      ].map((point, idx) => (
+                        <motion.circle
+                          key={idx}
+                          cx={point.x}
+                          cy={point.y}
+                          r="4"
+                          fill={isDark ? "#7dd3fc" : "#5A7863"}
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 2 + idx * 0.1, duration: 0.3 }}
+                        />
+                      ))}
+                    </svg>
+                  </div>
+
+                  {/* X-axis labels */}
+                  <div className="absolute left-8 right-4 bottom-0 flex justify-between">
+                    {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 2.5 + idx * 0.1 }}
+                        className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}
+                      >
+                        {month}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* Bottom Glow */}
+            <div className={`absolute bottom-0 left-0 right-0 h-px ${
+              isDark 
+                ? "bg-gradient-to-r from-transparent via-[#7dd3fc] to-transparent" 
+                : "bg-gradient-to-r from-transparent via-[#5A7863] to-transparent"
+            }`} />
           </motion.div>
         </div>
       </motion.section>
