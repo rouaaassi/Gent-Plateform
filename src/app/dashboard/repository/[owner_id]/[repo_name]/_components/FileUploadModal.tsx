@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { 
   X, 
@@ -23,23 +24,23 @@ interface FileUploadModalProps {
   isDark: boolean;
   defaultBranch: string;
   userEmail: string;
-  mode: 'upload' | 'create';
+  mode: "upload" | "create";
 }
 
-export default function FileUploadModal({ 
-  isOpen, 
-  onClose, 
-  ownerId, 
-  repoName, 
+export default function FileUploadModal({
+  isOpen,
+  onClose,
+  ownerId,
+  repoName,
   isDark,
   defaultBranch,
   userEmail,
-  mode 
+  mode,
 }: FileUploadModalProps) {
-  const [fileName, setFileName] = useState('');
-  const [fileContent, setFileContent] = useState('');
-  const [commitMessage, setCommitMessage] = useState('');
-  const [authorName, setAuthorName] = useState('');
+  const [fileName, setFileName] = useState("");
+  const [fileContent, setFileContent] = useState("");
+  const [commitMessage, setCommitMessage] = useState("");
+  const [authorName, setAuthorName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -53,13 +54,13 @@ export default function FileUploadModal({
   
   const t = getDashboardTheme(isDark);
 
-  console.log('FileUploadModal render: isOpen=', isOpen, 'mode=', mode);
+  console.log("FileUploadModal render: isOpen=", isOpen, "mode=", mode);
 
   if (!isOpen) return null;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(e.target.files);
-    setError('');
+    setError("");
   };
 
   const handleCreateFile = async (e: React.FormEvent) => {
@@ -68,22 +69,22 @@ export default function FileUploadModal({
     setSuccess(false);
 
     if (!fileName.trim()) {
-      setError('File name is required');
+      setError("File name is required");
       return;
     }
 
     if (!fileContent.trim()) {
-      setError('File content cannot be empty');
+      setError("File content cannot be empty");
       return;
     }
 
     if (!commitMessage.trim()) {
-      setError('Commit message is required');
+      setError("Commit message is required");
       return;
     }
 
     if (!authorName.trim()) {
-      setError('Author name is required');
+      setError("Author name is required");
       return;
     }
 
@@ -220,17 +221,17 @@ export default function FileUploadModal({
     setSuccess(false);
 
     if (!selectedFiles || selectedFiles.length === 0) {
-      setError('Please select files to upload');
+      setError("Please select files to upload");
       return;
     }
 
     if (!commitMessage.trim()) {
-      setError('Commit message is required');
+      setError("Commit message is required");
       return;
     }
 
     if (!authorName.trim()) {
-      setError('Author name is required');
+      setError("Author name is required");
       return;
     }
 
@@ -375,22 +376,25 @@ export default function FileUploadModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-2xl rounded-lg border"
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-lg border"
         style={{
           backgroundColor: t.elevated,
           borderColor: t.border,
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: t.border }}>
+        <div
+          className="flex items-center justify-between p-6 border-b"
+          style={{ borderColor: t.border }}
+        >
           <div className="flex items-center gap-2">
-            {mode === 'create' ? (
+            {mode === "create" ? (
               <Plus className="w-5 h-5" style={{ color: t.accent }} />
             ) : (
               <Upload className="w-5 h-5" style={{ color: t.accent }} />
             )}
             <h3 className="text-lg font-semibold" style={{ color: t.text }}>
-              {mode === 'create' ? 'Create new file' : 'Upload files'}
+              {mode === "create" ? "Create new file" : "Upload files"}
             </h3>
           </div>
           <button
@@ -403,9 +407,9 @@ export default function FileUploadModal({
         </div>
 
         {/* Content */}
-        <form 
-          onSubmit={mode === 'create' ? handleCreateFile : handleUploadFiles}
-          className="p-6 space-y-4"
+        <form
+          onSubmit={mode === "create" ? handleCreateFile : handleUploadFiles}
+          className="p-6 space-y-4  max-h-[70vh] overflow-y-auto"
         >
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm">
             <p style={{ color: t.text }} className="font-semibold mb-1">
@@ -419,7 +423,10 @@ export default function FileUploadModal({
             <>
               {/* File name */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: t.text }}>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: t.text }}
+                >
                   File name
                 </label>
                 <input
@@ -427,13 +434,13 @@ export default function FileUploadModal({
                   value={fileName}
                   onChange={(e) => {
                     setFileName(e.target.value);
-                    setError('');
+                    setError("");
                   }}
                   placeholder="README.md"
                   className="w-full px-3 py-2 text-sm rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   style={{
                     backgroundColor: t.inputBg,
-                    borderColor: error ? '#ef4444' : t.border,
+                    borderColor: error ? "#ef4444" : t.border,
                     color: t.text,
                   }}
                   autoFocus
@@ -442,21 +449,24 @@ export default function FileUploadModal({
 
               {/* File content */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: t.text }}>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: t.text }}
+                >
                   File content
                 </label>
                 <textarea
                   value={fileContent}
                   onChange={(e) => {
                     setFileContent(e.target.value);
-                    setError('');
+                    setError("");
                   }}
                   placeholder="Enter file content..."
-                  rows={12}
+                  rows={6}
                   className="w-full px-3 py-2 text-sm rounded-lg border font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   style={{
                     backgroundColor: t.inputBg,
-                    borderColor: error ? '#ef4444' : t.border,
+                    borderColor: error ? "#ef4444" : t.border,
                     color: t.text,
                   }}
                 />
@@ -466,7 +476,10 @@ export default function FileUploadModal({
             <>
               {/* File upload */}
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: t.text }}>
+                <label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: t.text }}
+                >
                   Select files
                 </label>
                 <input
@@ -476,7 +489,7 @@ export default function FileUploadModal({
                   className="w-full px-3 py-2 text-sm rounded-lg border"
                   style={{
                     backgroundColor: t.inputBg,
-                    borderColor: error ? '#ef4444' : t.border,
+                    borderColor: error ? "#ef4444" : t.border,
                     color: t.text,
                   }}
                 />
@@ -492,7 +505,10 @@ export default function FileUploadModal({
           {/* Commit info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: t.text }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: t.text }}
+              >
                 Author name
               </label>
               <input
@@ -500,7 +516,7 @@ export default function FileUploadModal({
                 value={authorName}
                 onChange={(e) => {
                   setAuthorName(e.target.value);
-                  setError('');
+                  setError("");
                 }}
                 placeholder="Your name"
                 className="w-full px-3 py-2 text-sm rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -513,7 +529,10 @@ export default function FileUploadModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: t.text }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: t.text }}
+              >
                 Branch
               </label>
               <input
@@ -531,16 +550,19 @@ export default function FileUploadModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: t.text }}>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{ color: t.text }}
+            >
               Commit message
             </label>
             <textarea
               value={commitMessage}
               onChange={(e) => {
                 setCommitMessage(e.target.value);
-                setError('');
+                setError("");
               }}
-              placeholder={mode === 'create' ? 'Add new file' : 'Upload files'}
+              placeholder={mode === "create" ? "Add new file" : "Upload files"}
               rows={3}
               className="w-full px-3 py-2 text-sm rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               style={{
@@ -567,11 +589,11 @@ export default function FileUploadModal({
 
           {/* Error message */}
           {error && (
-            <div 
+            <div
               className="flex items-center gap-2 p-3 text-sm rounded-lg"
               style={{
-                backgroundColor: isDark ? '#fef2f2' : '#fef2f2',
-                color: '#dc2626',
+                backgroundColor: isDark ? "#fef2f2" : "#fef2f2",
+                color: "#dc2626",
               }}
             >
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
