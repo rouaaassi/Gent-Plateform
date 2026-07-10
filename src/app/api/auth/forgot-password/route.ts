@@ -15,7 +15,6 @@ export async function POST(request: Request) {
     }
 
     // This is a mock implementation
-    console.log(`Password reset requested for: ${email}`);
     
    
     // Always return success to prevent email enumeration
