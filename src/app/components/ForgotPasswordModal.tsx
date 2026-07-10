@@ -6,8 +6,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
-import axios from "@/lib/axios";
+import { usePasswordResetRequest } from "@/hooks/use-password-reset";
 import { AxiosError } from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -17,12 +16,9 @@ interface ForgotPasswordModalProps {
   onClose: () => void;
 }
 
-interface ForgotPasswordPayload {
-  email: string;
-}
-
 interface ApiError {
-  error: string;
+  error?: string;
+  detail?: string;
 }
 
 export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProps) {
@@ -38,51 +34,56 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
     };
   }, [isOpen]);
 
-  const mutation = useMutation({
-    mutationFn: async (payload: ForgotPasswordPayload) => {
-      const { data } = await axios.post("/auth/forgot-password", payload);
-      return data;
-    },
-    onSuccess: () => {
-      toast.success('Password reset link has been sent to your email', {
-        duration: 5000,
-        position: 'top-center',
-        style: {
-          backgroundColor: '#f0fdf4',
-          color: '#166534',
-          border: '1px solid #bbf7d0',
-          borderRadius: '0.5rem',
-          padding: '1rem',
-          fontSize: '0.875rem',
-          textAlign: 'left',
-        }
-      });
-      onClose();
-      setTimeout(() => router.push('/auth/login'), 300);
-    },
-    onError: (err: AxiosError<ApiError>) => {
-      toast.error(err.response?.data?.error || 'An error occurred while sending the email', {
-        duration: 5000,
-        position: 'top-center',
-        style: {
-          backgroundColor: '#fef2f2',
-          color: '#b91c1c',
-          border: '1px solid #fecaca',
-          borderRadius: '0.5rem',
-          padding: '1rem',
-          fontSize: '0.875rem',
-          textAlign: 'left',
-        }
-      });
-      onClose();
-      setTimeout(() => router.push('/auth/login'), 300);
-    }
-  });
+  const mutation = usePasswordResetRequest();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    mutation.mutate({ email });
+    
+    mutation.mutate({ email }, {
+      onSuccess: (data) => {
+        // Display the message from backend
+        const message = data?.message || data?.detail || 
+          'If an account with that email exists, a password reset link has been sent.';
+        
+        toast.success(message, {
+          duration: 6000,
+          position: 'top-center',
+          style: {
+            backgroundColor: '#f0fdf4',
+            color: '#166534',
+            border: '1px solid #bbf7d0',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            fontSize: '0.875rem',
+            textAlign: 'left',
+            maxWidth: '500px',
+          }
+        });
+        setEmail('');
+        onClose();
+      },
+      onError: (err: Error) => {
+        const axiosErr = err as AxiosError<ApiError>;
+        const errorMessage = axiosErr.response?.data?.error || 
+          axiosErr.response?.data?.detail || 
+          'An error occurred while sending the email. Please try again.';
+        
+        toast.error(errorMessage, {
+          duration: 5000,
+          position: 'top-center',
+          style: {
+            backgroundColor: '#fef2f2',
+            color: '#b91c1c',
+            border: '1px solid #fecaca',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            fontSize: '0.875rem',
+            textAlign: 'left',
+          }
+        });
+      }
+    });
   };
 
   if (!isOpen) return null;

@@ -13,6 +13,7 @@ import { setAuth } from "@/store/slices/auth-slice";
 import { RootState } from "@/store";
 import { AUTH_PATH, DASHBOARD_PATH } from "@/routes/path";
 import SharedNavigation from "@/app/components/SharedNavigation";
+import ForgotPasswordModal from "@/app/components/ForgotPasswordModal";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -176,11 +178,22 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label className={`text-sm font-medium block ${
-                  isDark ? "text-[#f0f6fc]" : "text-[#24292f]"
-                }`}>
-                  Password
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className={`text-sm font-medium block ${
+                    isDark ? "text-[#f0f6fc]" : "text-[#24292f]"
+                  }`}>
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPasswordModal(true)}
+                    className={`text-xs hover:underline cursor-pointer ${
+                      isDark ? "text-[#58a6ff]" : "text-[#0969da]"
+                    }`}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -240,6 +253,12 @@ export default function LoginPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotPasswordModal}
+        onClose={() => setShowForgotPasswordModal(false)}
+      />
     </div>
   );
 }

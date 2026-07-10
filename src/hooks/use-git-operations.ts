@@ -11,8 +11,8 @@ export interface GitPack {
       email: string;
     };
     timestamp: string;
-    parent: string;
-    mergeParent?: string;
+    parent: string | null; // Can be null for initial commit
+    mergeParent?: string | null;
     treeHash: string;
     tree: Array<{
       mode: string;
@@ -26,7 +26,7 @@ export interface GitPack {
       path: string;
       hash: string;
     }>;
-    stats: Record<string, string>;
+    stats: Record<string, any>;
   }>;
   objects: Array<{
     hash: string;

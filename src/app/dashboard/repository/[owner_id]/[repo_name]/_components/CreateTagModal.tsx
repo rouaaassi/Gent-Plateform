@@ -69,6 +69,14 @@ export default function CreateTagModal({
       return;
     }
 
+    // Check if branch has a valid commit SHA
+    if (!sourceBranchData.commit_sha || 
+        sourceBranchData.commit_sha === '0000000000000000000000000000000000000000000000000000000000000000' ||
+        sourceBranchData.commit_sha.length === 0) {
+      setError('Selected branch has no commits yet. Push some commits first.');
+      return;
+    }
+
     if (isAnnotated && !message.trim()) {
       setError('Message is required for annotated tags');
       return;
@@ -86,9 +94,9 @@ export default function CreateTagModal({
         data: {
           name: tagName.trim(),
           commit_sha: sourceBranchData.commit_sha,
-          message: message.trim(),
+          message: message.trim() || tagName.trim(),
           annotated: isAnnotated,
-          tagger_name: taggerName.trim(),
+          tagger_name: taggerName.trim() || 'Unknown',
           tagger_email: userEmail
         }
       });
@@ -99,7 +107,9 @@ export default function CreateTagModal({
       setError('');
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create tag');
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Failed to create tag';
+      setError(errorMsg);
+      console.error('Create tag error:', err.response?.data);
     }
   };
 

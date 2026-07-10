@@ -10,7 +10,8 @@ import {
   Download,
   Edit,
   Copy,
-  Plus
+  Plus,
+  Upload
 } from "lucide-react";
 import { useTree, useBlob } from "@/hooks/use-files";
 import { useCommits } from "@/hooks/use-commits";
@@ -147,57 +148,57 @@ export default function FileBrowserTab({ ownerId, repoName, isDark, defaultBranc
           <h3 className="text-lg font-semibold mb-2" style={{ color: t.text }}>
             This repository is empty
           </h3>
-          <p className="text-sm mb-4" style={{ color: t.textMuted }}>
-            Get started by creating a new file or uploading existing files.
+          <p className="text-sm mb-6" style={{ color: t.textMuted }}>
+            Use Git CLI to create your first commit and push to this repository.
           </p>
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log('Create button clicked, showUploadModal:', showUploadModal);
-                setUploadMode('create');
-                setShowUploadModal(true);
+          
+          {/* Git CLI Instructions */}
+          <div 
+            className="max-w-2xl mx-auto text-left p-4 rounded-lg border"
+            style={{
+              backgroundColor: t.surface,
+              borderColor: t.border,
+            }}
+          >
+            <h4 className="text-sm font-semibold mb-3" style={{ color: t.text }}>
+              Quick start with Git CLI:
+            </h4>
+            <div 
+              className="p-3 rounded font-mono text-xs space-y-1"
+              style={{
+                backgroundColor: t.inputBg,
+                color: t.text,
               }}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer hover:opacity-90"
+            >
+              <div>echo "# {repoName}" &gt;&gt; README.md</div>
+              <div>git init</div>
+              <div>git add README.md</div>
+              <div>git commit -m "Initial commit"</div>
+              <div>git branch -M {defaultBranch}</div>
+              <div>git remote add origin https://gent.dev/{userEmail.split('@')[0]}/{repoName}.git</div>
+              <div>git push -u origin {defaultBranch}</div>
+            </div>
+            <button
+              onClick={() => {
+                const commands = `echo "# ${repoName}" >> README.md
+git init
+git add README.md
+git commit -m "Initial commit"
+git branch -M ${defaultBranch}
+git remote add origin https://gent.dev/${userEmail.split('@')[0]}/${repoName}.git
+git push -u origin ${defaultBranch}`;
+                navigator.clipboard.writeText(commands);
+              }}
+              className="mt-3 px-3 py-2 text-xs rounded-lg transition-colors"
               style={{
                 backgroundColor: t.accent,
                 color: t.successText,
               }}
             >
-              <Plus className="w-4 h-4 inline mr-2" />
-              Create new file
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log('Upload button clicked, showUploadModal:', showUploadModal);
-                setUploadMode('upload');
-                setShowUploadModal(true);
-              }}
-              className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-              style={{
-                borderColor: t.border,
-                color: t.text,
-              }}
-            >
-              Upload files
+              Copy commands
             </button>
           </div>
         </div>
-        
-        {/* File Upload Modal - must be present in ALL views */}
-        <FileUploadModal
-          isOpen={showUploadModal}
-          onClose={() => setShowUploadModal(false)}
-          ownerId={ownerId}
-          repoName={repoName}
-          isDark={isDark}
-          defaultBranch={defaultBranch}
-          userEmail={userEmail}
-          mode={uploadMode}
-        />
       </>
     );
   }
@@ -307,30 +308,69 @@ export default function FileBrowserTab({ ownerId, repoName, isDark, defaultBranc
   return (
     <>
       <div className="space-y-4">
-        {/* Path breadcrumb */}
-        {currentPath.length > 0 && (
-          <div className="flex items-center gap-1 text-sm" style={{ color: t.textMuted }}>
-            <button
-              onClick={() => setCurrentPath([])}
-              className="hover:underline"
-              style={{ color: t.accent }}
-            >
-              {repoName}
-            </button>
-            {currentPath.map((path, index) => (
-              <div key={index} className="flex items-center gap-1">
-                <ChevronRight className="w-4 h-4" />
+        {/* Action buttons when repo has commits */}
+        <div className="flex items-center justify-between">
+          <div>
+            {/* Path breadcrumb */}
+            {currentPath.length > 0 && (
+              <div className="flex items-center gap-1 text-sm" style={{ color: t.textMuted }}>
                 <button
-                  onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
+                  onClick={() => setCurrentPath([])}
                   className="hover:underline"
                   style={{ color: t.accent }}
                 >
-                  {path}
+                  {repoName}
                 </button>
+                {currentPath.map((path, index) => (
+                  <div key={index} className="flex items-center gap-1">
+                    <ChevronRight className="w-4 h-4" />
+                    <button
+                      onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
+                      className="hover:underline"
+                      style={{ color: t.accent }}
+                    >
+                      {path}
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
+          
+          {/* Add file buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setUploadMode('create');
+                setShowUploadModal(true);
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg border transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+              style={{
+                borderColor: t.border,
+                color: t.text,
+              }}
+              title="Create new file"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">New file</span>
+            </button>
+            <button
+              onClick={() => {
+                setUploadMode('upload');
+                setShowUploadModal(true);
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+              style={{
+                backgroundColor: t.accent,
+                color: t.successText,
+              }}
+              title="Upload files"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Upload</span>
+            </button>
+          </div>
+        </div>
 
         {/* Back button for directories */}
         {currentPath.length > 0 && (
